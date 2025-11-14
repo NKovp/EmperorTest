@@ -1,0 +1,57 @@
+﻿@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using TestProject.Services
+@using Umbraco.Extensions
+@using TestProject.Utils;
+@using System.Threading;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.ExternalNewsPage>
+
+@inject INewsFeedService NewsFeedService
+@{
+    Layout = "master.cshtml";
+
+    var feedUrl = Model.SourceUrl;
+    var articles = await NewsFeedService.GetArticlesAsync(feedUrl, CancellationToken.None);
+}
+
+@Html.Partial("~/Views/Partials/SectionHeader.cshtml")
+
+<section class="section">
+
+    <div class="container">
+        <div class="col-md-12">
+            <article>
+                @await Html.GetBlockGridHtmlAsync(Model, "bodyText")
+            </article>
+            <div class="news-container">
+                @if (!articles.Any())
+                {
+                    <p>No news available at the moment.</p>
+                }
+                else
+                {
+                    foreach (var a in articles)
+                    {
+                        <article class="news-item">
+                            @if (!string.IsNullOrWhiteSpace(a.ImageUrl))
+                            {
+                                <img src="@a.ImageUrl" alt="@a.Title">
+                            }
+
+                            <div class="news-content">
+                                <h2>@a.Title</h2>
+                                <p class="date">@DateFormatter.FormatWithOrdinal(a.PublishedDateUtc)</p>
+                                <p>@a.Description</p>
+                                <a href="@a.Link" class="read-more">read more</a>
+                            </div>
+                        </article>
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<link rel="stylesheet" href="@Url.Content("~/css/umbraco-starterkit-blockgrid.css")" />
+<link rel="stylesheet" href="@Url.Content("~/css/newslist.css")" />
