@@ -50,7 +50,7 @@ namespace TestProject.Services
 
                 var xdoc = XDocument.Parse(xml);
 
-                // подгоняешь XPaths под реальную структуру news_feed.xml
+                // Map XML items to ArticleViewModel
                 var items = xdoc.Descendants("item")
                     .Select(MapToArticle)
                     .Where(a => a is not null)
